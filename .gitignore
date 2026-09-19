@@ -1,0 +1,5 @@
+node_modules
+.serverless
+.serverless/
+.node_cache/
+.direnv
