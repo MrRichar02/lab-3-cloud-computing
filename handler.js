@@ -10,7 +10,20 @@ const {
 const { randomUUID } = require("crypto")
 
 const TABLE = process.env.PRODUCTOS_TABLE
-const db = DynamoDBDocumentClient.from(new DynamoDBClient())
+
+// Cliente local para apuntar cuando se ejecuta en local
+const localClient = new DynamoDBClient({
+  region: 'localhost',
+  endpoint: 'http://0.0.0.0:8000',
+  credentials: {
+    accessKeyId: 'MockAccessKeyId',
+    secretAccessKey: 'MockSecretAccessKey'
+  },
+})
+const db = DynamoDBDocumentClient.from(localClient)
+
+// Cliente para consumir diractamente de aws
+// const db = DynamoDBDocumentClient.from(new DynamoDBClient())
 
 const respuesta = (statusCode, body) => ({
   statusCode,
