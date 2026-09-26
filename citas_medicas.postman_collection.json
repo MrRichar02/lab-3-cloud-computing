@@ -1,0 +1,392 @@
+{
+  "info": {
+    "_postman_id": "8b945a6c-948f-4cb1-8ecb-9f93bfdfcf56",
+    "name": "API Citas Médicas - Cloud Computing Lab 3",
+    "description": "Colección de pruebas automatizadas para el CRUD de Citas Médicas desplegado con Serverless Framework y DynamoDB.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "citaId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Crear Cita Médica (201 Created)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code es 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Retorna ID generado y estructura correcta\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property(\"id\");",
+              "    pm.expect(jsonData.paciente).to.eql(\"Carlos Ramírez\");",
+              "    pm.expect(jsonData.medico).to.eql(\"Dra. María Gómez\");",
+              "    pm.expect(jsonData.especialidad).to.eql(\"Cardiología\");",
+              "    pm.expect(jsonData.estado).to.eql(\"PROGRAMADA\");",
+              "    pm.expect(jsonData).to.have.property(\"creadoEn\");",
+              "    pm.expect(jsonData).to.have.property(\"actualizadoEn\");",
+              "    ",
+              "    // Guardar ID en las variables de colección para las siguientes pruebas",
+              "    pm.collectionVariables.set(\"citaId\", jsonData.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"paciente\": \"Carlos Ramírez\",\n  \"medico\": \"Dra. María Gómez\",\n  \"especialidad\": \"Cardiología\",\n  \"fecha\": \"2026-10-15T09:30:00Z\",\n  \"motivo\": \"Revisión semestral de hipertensión\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/citas",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "citas"
+          ]
+        }
+      }
+    },
+    {
+      "name": "2. Crear Cita Médica - Validación Fallida (400 Bad Request)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code es 400 Bad Request\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"Retorna mensaje de error descriptivo\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property(\"error\");",
+              "    pm.expect(jsonData.error).to.include(\"paciente\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"paciente\": \"\",\n  \"medico\": \"Dra. María Gómez\",\n  \"especialidad\": \"Cardiología\",\n  \"fecha\": \"2026-10-15T09:30:00Z\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/citas",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "citas"
+          ]
+        }
+      }
+    },
+    {
+      "name": "3. Listar Citas Médicas (200 OK)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code es 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Retorna arreglo de citas que contiene la cita creada\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.be.an(\"array\");",
+              "    var citaId = pm.collectionVariables.get(\"citaId\");",
+              "    if (citaId) {",
+              "        var found = jsonData.some(function(item) { return item.id === citaId; });",
+              "        pm.expect(found).to.be.true;",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/citas",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "citas"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4. Obtener Cita Médica por ID (200 OK)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code es 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"El ID y datos coinciden con la cita creada\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"citaId\"));",
+              "    pm.expect(jsonData.paciente).to.eql(\"Carlos Ramírez\");",
+              "    pm.expect(jsonData.especialidad).to.eql(\"Cardiología\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/citas/{{citaId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "citas",
+            "{{citaId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "5. Obtener Cita Inexistente (404 Not Found)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code es 404 Not Found\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"Retorna mensaje Cita médica no encontrada\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.error).to.eql(\"Cita médica no encontrada\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/citas/00000000-0000-0000-0000-000000000000",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "citas",
+            "00000000-0000-0000-0000-000000000000"
+          ]
+        }
+      }
+    },
+    {
+      "name": "6. Actualizar Cita Médica (200 OK)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code es 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Retorna los datos actualizados y estado CONFIRMADA\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"citaId\"));",
+              "    pm.expect(jsonData.estado).to.eql(\"CONFIRMADA\");",
+              "    pm.expect(jsonData.fecha).to.eql(\"2026-10-15T11:00:00Z\");",
+              "    pm.expect(jsonData.motivo).to.eql(\"Revisión confirmada con electro\");",
+              "    pm.expect(jsonData).to.have.property(\"actualizadoEn\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"paciente\": \"Carlos Ramírez\",\n  \"medico\": \"Dra. María Gómez\",\n  \"especialidad\": \"Cardiología\",\n  \"fecha\": \"2026-10-15T11:00:00Z\",\n  \"estado\": \"CONFIRMADA\",\n  \"motivo\": \"Revisión confirmada con electro\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/citas/{{citaId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "citas",
+            "{{citaId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "7. Actualizar Cita Inexistente (404 Not Found)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code es 404 Not Found\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"Retorna error Cita médica no encontrada\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.error).to.eql(\"Cita médica no encontrada\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"paciente\": \"Paciente Inexistente\",\n  \"medico\": \"Dr. Desconocido\",\n  \"especialidad\": \"Neurología\",\n  \"fecha\": \"2026-10-15T11:00:00Z\",\n  \"estado\": \"PROGRAMADA\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/citas/00000000-0000-0000-0000-000000000000",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "citas",
+            "00000000-0000-0000-0000-000000000000"
+          ]
+        }
+      }
+    },
+    {
+      "name": "8. Eliminar Cita Médica (200 OK)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code es 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Mensaje de confirmación de eliminación\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.mensaje).to.eql(\"Cita médica eliminada exitosamente\");",
+              "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"citaId\"));",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/citas/{{citaId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "citas",
+            "{{citaId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "9. Eliminar Cita Ya Eliminada (404 Not Found)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code es 404 Not Found\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"Retorna error Cita médica no encontrada al intentar re-eliminar\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.error).to.eql(\"Cita médica no encontrada\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/citas/{{citaId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "citas",
+            "{{citaId}}"
+          ]
+        }
+      }
+    }
+  ]
+}
