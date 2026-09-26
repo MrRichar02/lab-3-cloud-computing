@@ -11,7 +11,7 @@ provider:
   architecture: arm64 
   region: us-east-1 
   environment: 
-    PRODUCTOS_TABLE: ${self:service}-productos-${sls:stage} 
+    CITAS_TABLE: ${self:service}-citas-${sls:stage} 
   iam: 
     role: 
       statements: 
@@ -23,7 +23,7 @@ provider:
             - dynamodb:UpdateItem 
             - dynamodb:DeleteItem 
           Resource: 
-            - Fn::GetAtt: [ProductosTable, Arn]
+            - Fn::GetAtt: [CitasTable, Arn]
   # Uncomment to easily set up a custom domain. Read the docs for more details:
   # https://www.serverless.com/framework/docs/providers/aws/guide/domains
   # domain: api.example.com
@@ -33,39 +33,39 @@ functions:
     handler: handler.crear 
     events: 
       - httpApi: 
-          path: /productos 
+          path: /citas 
           method: post 
   listar: 
     handler: handler.listar 
     events: 
       - httpApi: 
-          path: /productos 
+          path: /citas 
           method: get 
   obtener: 
     handler: handler.obtener 
     events: 
       - httpApi: 
-          path: /productos/{id} 
+          path: /citas/{id} 
           method: get 
   actualizar: 
     handler: handler.actualizar 
     events: 
       - httpApi: 
-          path: /productos/{id} 
+          path: /citas/{id} 
           method: put 
   eliminar: 
     handler: handler.eliminar 
     events: 
       - httpApi: 
-          path: /productos/{id} 
+          path: /citas/{id} 
           method: delete
 
 resources: 
   Resources: 
-    ProductosTable: 
+    CitasTable: 
       Type: AWS::DynamoDB::Table 
       Properties: 
-        TableName: ${self:provider.environment.PRODUCTOS_TABLE} 
+        TableName: ${self:provider.environment.CITAS_TABLE} 
         BillingMode: PAY_PER_REQUEST 
         AttributeDefinitions: 
           - AttributeName: id 
