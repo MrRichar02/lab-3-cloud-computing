@@ -52,16 +52,14 @@ API RESTful serverless para la gestión de **Citas Médicas**, desarrollada con 
 
 ```bash
 npm install
-# o con pnpm:
-pnpm install
 ```
 
 ### 2. Ejecución Local (Serverless Offline)
 
-Para levantar el servidor HTTP local y la base de datos DynamoDB:
+Para levantar el servidor HTTP local y la base de datos DynamoDB usando docker:
 
 ```bash
-npx serverless offline start
+serverless offline start
 ```
 
 El servicio quedará disponible en `http://localhost:3000`.
@@ -71,7 +69,7 @@ El servicio quedará disponible en `http://localhost:3000`.
 Para desplegar en tu cuenta de AWS:
 
 ```bash
-npx serverless deploy
+serverless deploy
 ```
 
 Al finalizar el despliegue, Serverless imprimirá en consola el endpoint base de la HTTP API (ej. `https://xxxxxx.execute-api.us-east-1.amazonaws.com`).
